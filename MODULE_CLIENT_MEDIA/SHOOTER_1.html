@@ -14,6 +14,10 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    body {
+        overflow: hidden;
+    }
+
     .d-flex {
         display: flex;
     }
@@ -91,7 +95,7 @@
         background-color: rgba(0, 0, 0, .5);
         color: white;
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: 300px 300px 300px 100px;
         width: 990px;
     }
 
@@ -126,13 +130,58 @@
     #game-result {
         font-size: 50px;
     }
-    #pause{
+
+    #pause {
         background-color: black;
         width: 1000px;
         height: 600px;
         position: fixed;
         z-index: 9999;
         color: white;
+    }
+
+    #instruction {
+        height: 600px;
+        width: 1000px;
+        background-color: black;
+        color: white;
+    }
+
+    .history {
+        width: 1000px;
+        height: 600px;
+        background-color: rgba(0, 0, 0, .8);
+        color: gray;
+        position: fixed;
+        z-index: 10000;
+        overflow-y: scroll;
+    }
+
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    table th {
+        background-color: #f2f2f2;
+    }
+
+    table tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    table tbody tr:hover {
+        background-color: #ddd;
     }
 </style>
 
@@ -180,7 +229,7 @@
                     </div>
                     <div class="d-flex">
                         <button class="play" onclick="playGame()">PLAY GAME</button>
-                        <button class="tutorial">instructions</button>
+                        <button class="tutorial" onclick="instruction()">instructions</button>
                     </div>
                 </div>
             </div>
@@ -189,6 +238,25 @@
             <div class="countdown d-flex">
                 <div id="countdown">3</div>
             </div>
+            <div id="history" class="history d-none">
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Score</th>
+                            <th>Time</th>
+                            <th>Gun</th>
+                            <th>Level Selected</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+
+                    </tbody>
+                </table>
+                <div class="d-flex center">
+                    <button class="tutorial" onclick="closeHistory()">CLose</button>
+                </div>
+            </div>
+
             <div class="pause d-none center-page" id="pause">
                 Paused Click 'ESC' Again To Resume
             </div>
@@ -201,6 +269,9 @@
                 </div>
                 <div class="row-3">
                     Time : <span id="timer">999</span>
+                </div>
+                <div class="row-4">
+                    <button class="play" onclick="openHistory()">History</button>
                 </div>
             </div>
             <div class="row" id="board-game" style="height: 50%; border: 1px solid;">
@@ -216,6 +287,17 @@
             </div>
             <button class="play" onclick="saveAsLocal()">Continue And Save</button>
         </div>
+        <div id="instruction" class="d-none center-page">
+            <ol>
+                <li>Input Username</li>
+                <li>Point the pointer at the target</li>
+                <li>Click To Shoot</li>
+                <li>Get as many points as possible</li>
+                <li>Enjoy</li>
+            </ol>
+            <button class="tutorial" onclick="closeTutorial()">CLOSE</button>
+        </div>
+
     </div>
     <script>
         let gun = '';
@@ -231,6 +313,22 @@
         let timer = document.getElementById('timer')
         let score = document.getElementById('score')
         let timerInterval = ''
+        function openHistory() {
+            clearInterval(timerInterval)
+            document.getElementById('history').classList.remove('d-none')
+        }
+        function closeHistory() {
+            timers()
+            document.getElementById('history').classList.add('d-none')
+        }
+        function instruction() {
+            document.getElementById('instruction').classList.add('col')
+            board1.classList.add('d-none')
+        }
+        function closeTutorial() {
+            document.getElementById('instruction').classList.remove('col')
+            board1.classList.remove('d-none')
+        }
         function playGame() {
             if (gun == '') {
                 alert('Silahkan Pilih Senjata Anda')
@@ -245,14 +343,31 @@
                 board1.classList.add('d-none')
                 board2.classList.remove('d-none')
                 isPaused = false
+                window.addEventListener('scroll', (e) => {
+                    window.scrollTo(0, 0);
+                });
+                let history = localStorage.getItem('savedData');
+                history = JSON.parse(history);
+                const historyElement = document.getElementById('historyTable');
+                let historyHTML = '';
+                history.forEach(historys => {
+
+                    historyHTML += `<tr>`;
+                    historyHTML += `<td>${historys.scores}</td>`;
+                    historyHTML += `<td>${historys.time}</td>`;
+                    historyHTML += `<td style="text-align:center;"><img src="/media/Sprites/${historys.gun}.png" width="50px"></td>`;
+                    historyHTML += `<td>${historys.levelSelected}</td>`;
+                    historyHTML += `</tr>`;
+                });
+                historyElement.innerHTML = historyHTML;
                 document.addEventListener('keyup', (e) => {
-                    if(e.keyCode == 27){
+                    if (e.keyCode == 27) {
                         if (!isPaused) {
                             clearInterval(timerInterval)
                             isPaused = true
                             document.getElementById('pause').classList.add('d-flex')
                             document.getElementById('pause').classList.remove('d-none')
-                        }else{
+                        } else {
                             document.getElementById('pause').classList.add('d-none')
                             document.getElementById('pause').classList.remove('d-flex')
                             isPaused = false
@@ -273,7 +388,7 @@
                         clearInterval(intervalTime)
                         document.querySelector('.countdown').style.display = 'none'
                         board_game.addEventListener('click', main);
-                        
+
                         document.addEventListener('mousemove', (e) => {
                             const x = e.clientX;
                             const y = e.clientY;
@@ -298,29 +413,24 @@
                     document.getElementById('game-result').classList.add('d-flex')
                     document.getElementById('game-result').classList.add('col')
                     document.getElementById('result').innerHTML = score.innerHTML
-                    
                 }
-
             }, 1000);
         }
-        function saveAsLocal() {
-            const score = score.innerHTML;
+        function saveAsLocal(e) {
+            const scores = score.innerHTML;
             const levelSelected = findLevel(time);
             const newData = {
-                score,
+                scores,
                 time,
                 gun,
                 levelSelected
             };
-
-            // Mendapatkan data yang tersimpan sebelumnya dari localStorage
             let previousData = JSON.parse(localStorage.getItem('savedData')) || [];
-
-            // Menambahkan data baru ke dalam array yang sudah ada dengan spread operator
             const updatedData = [...previousData, newData];
-
-            // Menyimpan data yang diperbarui ke localStorage
             localStorage.setItem('savedData', JSON.stringify(updatedData));
+
+            window.location = '/'
+
         }
 
         function findLevel(time) {
@@ -359,7 +469,7 @@
         }
         function removeTarget() {
             setTimeout(() => {
-                // Memilih semua elemen dengan kelas "animasi"
+
                 const elementsToRemove = document.querySelectorAll('.animation');
                 elementsToRemove.forEach(element => {
                     element.remove()
