@@ -76,9 +76,9 @@ By default, the server will run on `http://localhost:8000`. You can access your 
 - [Laravel Documentation](https://laravel.com/docs)
 - [Laracasts](https://laracasts.com/) - Video tutorials for Laravel development
 - [Laravel News](https://laravel-news.com/) - Latest news and updates about Laravel
-
-### DOCUMENTATIONS COLLECTION
 Congratulations! You have successfully installed and set up a Laravel project on your system. Happy coding!
+### DOCUMENTATIONS COLLECTION
+
 Documentations : https://docs.google.com/document/d/1mmAndsYMbv9UEG6jcFu-ocTzomigdjCp/edit
 <br>
 API Postman Documentations : https://documenter.getpostman.com/view/29838182/2sA3JQ3etG
