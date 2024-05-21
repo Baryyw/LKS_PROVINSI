@@ -1,6 +1,7 @@
+# INSTALL LARAVEL 10.x
 
-#INSTALL LARAVEL
-#Start Larevel
+
+# Start Laravel
 ```bash
 php artisan serve
 ```
